@@ -4,10 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import type { Bundle } from "@/lib/bundles";
 import { getPointer } from "@/lib/hand-pointer";
 import { FolderStack } from "./folder-stack";
-import { YouTubePlayer } from "./youtube-player";
+import { Scene03Stage } from "./scene03-stage";
 
 const HOVER_THRESHOLD_MS = 1000;
-const FIRST_SONG_ID = "9RoZN7Dnoo4";
 
 type Hover = { id: string; startedAt: number };
 
@@ -122,20 +121,7 @@ export function Scene02Controller({ bundles }: { bundles: Bundle[] }) {
         })}
       </div>
 
-      {selected && (
-        <>
-          <div className="fixed inset-0 z-20 bg-black/35 backdrop-blur-sm pointer-events-none animate-[fadeIn_300ms_ease-out_forwards]" />
-          <div className="fixed inset-0 z-30 flex items-center justify-center pointer-events-none">
-            <div className="scale-[2] origin-center transition-transform duration-500">
-              <FolderStack bundle={selected} />
-            </div>
-          </div>
-          <p className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30 text-xs text-white/90 px-3 py-1.5 rounded bg-black/40 backdrop-blur-sm">
-            폴더 지목 · 음악 대기 중 (Scene 03에서 재생)
-          </p>
-          <YouTubePlayer videoId={FIRST_SONG_ID} />
-        </>
-      )}
+      {selected && <Scene03Stage bundle={selected} />}
     </>
   );
 }

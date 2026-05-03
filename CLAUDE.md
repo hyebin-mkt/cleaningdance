@@ -71,8 +71,8 @@ cat .env.local 2>/dev/null && echo "(env 있음)" || echo "(env 없음 — 세�
 | **M2** | 3시간 묶음 + 카메라 풀스크린 무대 + 폴더 스택 + Realtime | 01 | ✅ |
 | **M3** | MediaPipe 손/제스처 디텍션 (자체 호스팅 WASM·모델, 디버그 오버레이) | — | ✅ |
 | **M4** | 4 제스처 등록 (워밍업·음악은 M5로 분리) | 00 | ✅ |
-| **M5** | 폴더 hover 지목 + YouTube IFrame 대기 | 02 | 🔜 다음 |
-| M6 | 폴더 해체 제스처 (3종) | 03 | |
+| **M5** | 폴더 hover 지목 + YouTube IFrame 대기 | 02 | ✅ |
+| **M6** | 폴더 해체 (찢기 1종 + 양손 동그라미 fallback) + 음악 본격 재생 | 03 | ✅ |
 | M7 | 1장씩 분류 + 자라는 콜라주 | 04 | |
 | M8 | "다음에" sweep + 휴지통 | 05 | |
 | M9 | Chrome+Safari 익스텐션 | -2 | |
@@ -190,9 +190,13 @@ cd apps/web && npx tsc --noEmit
 
 **M4 ✅** — Scene 00 어휘 등록. `gestures` 테이블(RLS), wrist+middleMCP 기준 정규화 + Euclidean 매칭(`lib/gesture-matching.ts`, threshold 1.5), 4슬롯 모달 등록 플로우(1초 5스냅샷 평균). 워밍업 음악·자세 연습은 M5로 분리. 5번째 "다음에" 제스처는 시스템 고정으로 별도 저장 X.
 
-**M5 🔜** — Scene 02. 손 1초 hover로 폴더 지목, 파동·2배 확대·중앙 정렬 + YouTube IFrame 로드 후 *대기* (Scene 03 진입 시 본격 재생). 베타 첫 곡: `9RoZN7Dnoo4`.
+**M5 ✅** — Scene 02. 손 1초 hover로 폴더 지목, 파동·2배 확대·중앙 정렬, YouTube IFrame 로드 후 대기.
 
-**잔여**: Scene 00 워밍업 음악 자세 연습 — M5에서 음악 인프라 들어온 뒤 별도 타임슬롯 잡아 처리 (현재 진척표엔 미배정).
+**M6 ✅** — Scene 03. 양손 wrist distance 변화로 *찢기* 검출(0.5s 윈도우, 0.20→0.45 임계), 8s 무반응 시 양손 동그라미 fallback. 검출되면 `lib/music-controller.ts`로 postMessage 명령(playVideo + unmute) → 첫 곡 재생, queue를 랜덤 셔플 후 Scene 04 (M7) 대기 메시지.
+
+**M7 🔜** — Scene 04. 1장씩 분류 + 자라는 콜라주 (4 슬롯에 배치, "다음에" 5번째 제스처). plan 진입 시 결정사항 여기에 정리.
+
+**잔여**: 튕기기·뭉개기 검출 + Scene 00 워밍업 자세 연습. 현 진척표 미배정 슬롯.
 
 ---
 
