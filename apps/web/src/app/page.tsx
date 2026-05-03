@@ -6,6 +6,7 @@ import { UrlInput } from "./url-input";
 import { CameraStage } from "./camera-stage";
 import { FolderStack } from "./folder-stack";
 import { RealtimeRefresh } from "./realtime-refresh";
+import { GestureRegistration } from "./gesture-registration";
 import { groupIntoBundles, type ItemRow } from "@/lib/bundles";
 
 export default async function Home({
@@ -27,14 +28,19 @@ export default async function Home({
     redirect("/login");
   }
 
-  const { data: itemsData } = await supabase
-    .from("items")
-    .select("id, created_at")
-    .order("created_at", { ascending: false })
-    .limit(500);
+  const [itemsRes, gesturesRes] = await Promise.all([
+    supabase
+      .from("items")
+      .select("id, created_at")
+      .order("created_at", { ascending: false })
+      .limit(500),
+    supabase.from("gestures").select("slot"),
+  ]);
 
-  const items = (itemsData ?? []) as ItemRow[];
+  const items = (itemsRes.data ?? []) as ItemRow[];
   const bundles = groupIntoBundles(items);
+  const gestureCount = gesturesRes.data?.length ?? 0;
+  const needsRegistration = gestureCount < 4;
 
   return (
     <>
@@ -88,9 +94,11 @@ export default async function Home({
         )}
 
         <p className="text-xs text-white/90 inline-block bg-black/25 backdrop-blur-sm rounded px-2 py-1">
-          M2 — Scene 01 자동 렌더 · 묶음 {bundles.length}
+          M4 · 묶음 {bundles.length} · 어휘 {gestureCount}/4
         </p>
       </main>
+
+      {needsRegistration && <GestureRegistration />}
     </>
   );
 }

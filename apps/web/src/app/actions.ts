@@ -151,3 +151,59 @@ export async function signOut() {
   await supabase.auth.signOut();
   redirect("/login");
 }
+
+type GestureRow = {
+  slot: number;
+  template: { x: number; y: number; z: number }[];
+};
+
+export async function saveGestures(
+  rows: GestureRow[],
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "로그인이 필요해요" };
+
+  if (rows.length !== 4) {
+    return { ok: false, error: "4개 슬롯 모두 필요해요" };
+  }
+  for (const r of rows) {
+    if (!Number.isInteger(r.slot) || r.slot < 1 || r.slot > 4) {
+      return { ok: false, error: "잘못된 슬롯" };
+    }
+    if (!Array.isArray(r.template) || r.template.length !== 21) {
+      return { ok: false, error: "잘못된 템플릿" };
+    }
+    for (const p of r.template) {
+      if (
+        typeof p.x !== "number" ||
+        typeof p.y !== "number" ||
+        typeof p.z !== "number" ||
+        !Number.isFinite(p.x) ||
+        !Number.isFinite(p.y) ||
+        !Number.isFinite(p.z)
+      ) {
+        return { ok: false, error: "템플릿 값 오류" };
+      }
+    }
+  }
+
+  const payload = rows.map((r) => ({
+    user_id: user.id,
+    slot: r.slot,
+    template: r.template,
+  }));
+
+  const { error } = await supabase
+    .from("gestures")
+    .upsert(payload, { onConflict: "user_id,slot" });
+
+  if (error) {
+    return { ok: false, error: "저장 실패" };
+  }
+
+  revalidatePath("/");
+  return { ok: true };
+}
