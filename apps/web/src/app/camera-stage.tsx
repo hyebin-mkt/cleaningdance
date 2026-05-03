@@ -1,8 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { HandTracker } from "./hand-tracker";
+import { HandDebugOverlay } from "./hand-debug-overlay";
 
 type Status = "idle" | "prompting" | "granted" | "denied" | "unsupported";
+
+const HAND_DEBUG = process.env.NEXT_PUBLIC_HAND_DEBUG === "1";
 
 export function CameraStage() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -72,6 +76,8 @@ export function CameraStage() {
           이 브라우저는 카메라를 지원하지 않아요
         </div>
       )}
+      {status === "granted" && <HandTracker videoRef={videoRef} />}
+      {status === "granted" && HAND_DEBUG && <HandDebugOverlay />}
     </>
   );
 }

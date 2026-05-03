@@ -69,8 +69,8 @@ cat .env.local 2>/dev/null && echo "(env 있음)" || echo "(env 없음 — 세�
 | **M1.2** | URL 인입 + OG 메타 + SSRF 방어 | -1 | ✅ |
 | **M1.3** | 검증 그리드 (signed URL 1h TTL) | — | ✅ |
 | **M2** | 3시간 묶음 + 카메라 풀스크린 무대 + 폴더 스택 + Realtime | 01 | ✅ |
-| **M3** | MediaPipe 손/제스처 디텍션 | — | 🔜 다음 |
-| M4 | 4 제스처 등록 워밍업 | 00 | |
+| **M3** | MediaPipe 손/제스처 디텍션 (자체 호스팅 WASM·모델, 디버그 오버레이) | — | ✅ |
+| **M4** | 4 제스처 등록 워밍업 | 00 | 🔜 다음 |
 | M5 | 폴더 hover + YouTube 음악 | 02 | |
 | M6 | 폴더 해체 제스처 (3종) | 03 | |
 | M7 | 1장씩 분류 + 자라는 콜라주 | 04 | |
@@ -186,7 +186,9 @@ cd apps/web && npx tsc --noEmit
 
 **M2 ✅** — Scene 01 자동 렌더. 카메라 풀스크린 배경(`fixed inset-0`), 폴더 스택 카드 오버레이, 3시간 calendar-aligned 묶음(자정 cross + 15개 cap), Supabase Realtime 자동 갱신, 권한 거부 시 하단 chip + 재요청 CTA.
 
-**M3 🔜** — MediaPipe 손/제스처 디텍션. plan 진입 시 결정사항 여기에 정리.
+**M3 ✅** — MediaPipe HandLandmarker 통합. WASM·모델 자체 호스팅(`public/mediapipe/wasm/`, `public/models/hand_landmarker.task`), `@mediapipe/tasks-vision` 버전 고정. RAF 검출 루프, `lib/hand-store.ts` pubsub로 좌표 노출, 디버그 오버레이 `NEXT_PUBLIC_HAND_DEBUG=1`로 토글. 모든 처리 client-side, 프레임 외부 송신 없음.
+
+**M4 🔜** — 4 제스처 등록 워밍업 (Scene 00). plan 진입 시 결정사항 여기에 정리.
 
 ---
 
