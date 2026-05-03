@@ -1,11 +1,16 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import {
+  fetchLinkPreview,
+  UnsupportedUrlError,
+  type LinkPreview,
+} from "@/lib/url-fetch";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import sharp from "sharp";
 
-const MAX_FILE_SIZE = 20 * 1024 * 1024;
+const MAX_FILE_SIZE = 50 * 1024 * 1024;
 const MAX_DIMENSION = 4096;
 
 export async function uploadFiles(formData: FormData) {
@@ -29,7 +34,7 @@ export async function uploadFiles(formData: FormData) {
 
   for (const file of valid) {
     if (file.size > MAX_FILE_SIZE) {
-      errors.push(`${file.name}: 너무 큽니다(>20MB)`);
+      errors.push(`${file.name}: 너무 큽니다(>50MB)`);
       continue;
     }
 
@@ -96,6 +101,49 @@ export async function uploadFiles(formData: FormData) {
   if (errors.length > 0) params.set("error", errors.join(", "));
 
   redirect(`/?${params.toString()}`);
+}
+
+export async function submitUrl(formData: FormData) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const url = (formData.get("url") as string)?.trim();
+  if (!url) {
+    redirect("/?error=no_url");
+  }
+
+  let preview: LinkPreview;
+  try {
+    preview = await fetchLinkPreview(url);
+  } catch (e) {
+    const msg =
+      e instanceof UnsupportedUrlError
+        ? e.message
+        : "처리 실패";
+    redirect(`/?error=${encodeURIComponent(msg)}`);
+  }
+
+  const { error } = await supabase.from("items").insert({
+    user_id: user.id,
+    type: "link",
+    source_url: preview.url,
+    title: preview.title,
+    description: preview.description,
+    image_url: preview.image,
+  });
+
+  if (error) {
+    redirect(`/?error=${encodeURIComponent("저장 실패")}`);
+  }
+
+  revalidatePath("/");
+  redirect("/?linked=1");
 }
 
 export async function signOut() {

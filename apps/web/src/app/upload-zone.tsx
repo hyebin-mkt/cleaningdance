@@ -39,7 +39,7 @@ export function UploadZone() {
           여기에 이미지 떨어뜨리거나 클릭해서 골라주세요
         </p>
         <p className="text-xs text-neutral-400 mt-1">
-          jpg · png · webp · gif · 한 장 최대 20MB
+          jpg · png · webp · gif · 한 장 최대 50MB
         </p>
       </label>
     </form>

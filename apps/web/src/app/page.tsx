@@ -2,11 +2,16 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { signOut } from "./actions";
 import { UploadZone } from "./upload-zone";
+import { UrlInput } from "./url-input";
 
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ uploaded?: string; error?: string }>;
+  searchParams: Promise<{
+    uploaded?: string;
+    linked?: string;
+    error?: string;
+  }>;
 }) {
   const params = await searchParams;
   const supabase = await createClient();
@@ -37,17 +42,22 @@ export default async function Home({
 
       <UploadZone />
 
+      <UrlInput />
+
       {params.uploaded && (
         <p className="text-sm text-green-700">
           {params.uploaded}장 올라왔어요. 기특해 ✨
         </p>
+      )}
+      {params.linked && (
+        <p className="text-sm text-green-700">링크 저장됐어요. 기특해 ✨</p>
       )}
       {params.error && (
         <p className="text-sm text-red-700">{params.error}</p>
       )}
 
       <p className="text-xs text-neutral-400">
-        M1.1 — 파일 업로드 ✓ · 다음: M1.2 URL 인입
+        M1.2 — URL 인입 ✓ · 다음: M1.3 검증 리스트
       </p>
     </main>
   );
