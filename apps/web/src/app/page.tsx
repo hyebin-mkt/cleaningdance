@@ -4,6 +4,15 @@ import { signOut } from "./actions";
 import { UploadZone } from "./upload-zone";
 import { UrlInput } from "./url-input";
 
+type Item = {
+  id: string;
+  type: "image" | "link";
+  image_url: string | null;
+  source_url: string | null;
+  title: string | null;
+  created_at: string;
+};
+
 export default async function Home({
   searchParams,
 }: {
@@ -21,6 +30,29 @@ export default async function Home({
 
   if (!user) {
     redirect("/login");
+  }
+
+  const { data: itemsData } = await supabase
+    .from("items")
+    .select("id, type, image_url, source_url, title, created_at")
+    .order("created_at", { ascending: false })
+    .limit(100);
+
+  const items = (itemsData ?? []) as Item[];
+
+  // private 버킷이라 image 타입은 일괄 signed URL 생성 (1시간 TTL)
+  const imagePaths = items
+    .filter((i) => i.type === "image" && i.image_url)
+    .map((i) => i.image_url as string);
+
+  const signedMap = new Map<string, string>();
+  if (imagePaths.length > 0) {
+    const { data: signed } = await supabase.storage
+      .from("items")
+      .createSignedUrls(imagePaths, 3600);
+    signed?.forEach((s) => {
+      if (s.path && s.signedUrl) signedMap.set(s.path, s.signedUrl);
+    });
   }
 
   return (
@@ -41,7 +73,6 @@ export default async function Home({
       </header>
 
       <UploadZone />
-
       <UrlInput />
 
       {params.uploaded && (
@@ -56,8 +87,61 @@ export default async function Home({
         <p className="text-sm text-red-700">{params.error}</p>
       )}
 
+      <section className="space-y-3">
+        <h2 className="text-sm font-medium text-neutral-500">
+          최근 항목 {items.length > 0 && `(${items.length})`}
+        </h2>
+        {items.length === 0 ? (
+          <p className="text-sm text-neutral-400">
+            아직 아무것도 없어요. 위에서 올려보세요.
+          </p>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {items.map((item) => {
+              const imgSrc =
+                item.type === "image" && item.image_url
+                  ? signedMap.get(item.image_url)
+                  : (item.image_url ?? undefined);
+
+              return (
+                <div
+                  key={item.id}
+                  className="border rounded overflow-hidden bg-white"
+                >
+                  {imgSrc && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={imgSrc}
+                      alt={item.title ?? ""}
+                      className="w-full aspect-square object-cover"
+                    />
+                  )}
+                  {item.type === "link" && (
+                    <div className="p-2 space-y-1">
+                      <p className="text-xs font-medium line-clamp-2">
+                        {item.title ?? item.source_url}
+                      </p>
+                      {item.source_url && (
+                        <a
+                          href={item.source_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-neutral-500 hover:underline truncate block"
+                        >
+                          {item.source_url}
+                        </a>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
       <p className="text-xs text-neutral-400">
-        M1.2 — URL 인입 ✓ · 다음: M1.3 검증 리스트
+        M1.3 — 검증 리스트 ✓ · 다음: M2 3시간 묶음
       </p>
     </main>
   );
