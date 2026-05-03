@@ -1,7 +1,14 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { signOut } from "./actions";
+import { UploadZone } from "./upload-zone";
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ uploaded?: string; error?: string }>;
+}) {
+  const params = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -12,14 +19,36 @@ export default async function Home() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-6">
-      <div className="text-center space-y-2">
-        <h1 className="text-2xl">환영합니다</h1>
-        <p className="text-sm text-neutral-500">{user.email}</p>
-        <p className="text-xs text-neutral-400">
-          M0 스캐폴드 ✓ — 다음: M1 업로드
+    <main className="min-h-screen p-6 max-w-3xl mx-auto space-y-6">
+      <header className="flex items-center justify-between">
+        <div>
+          <p className="text-xs text-neutral-500">{user.email}</p>
+          <h1 className="text-xl font-medium">cleaning dance</h1>
+        </div>
+        <form action={signOut}>
+          <button
+            type="submit"
+            className="text-sm text-neutral-500 hover:text-neutral-900"
+          >
+            로그아웃
+          </button>
+        </form>
+      </header>
+
+      <UploadZone />
+
+      {params.uploaded && (
+        <p className="text-sm text-green-700">
+          {params.uploaded}장 올라왔어요. 기특해 ✨
         </p>
-      </div>
+      )}
+      {params.error && (
+        <p className="text-sm text-red-700">{params.error}</p>
+      )}
+
+      <p className="text-xs text-neutral-400">
+        M1.1 — 파일 업로드 ✓ · 다음: M1.2 URL 인입
+      </p>
     </main>
   );
 }
