@@ -177,8 +177,11 @@ cd apps/web && npx tsc --noEmit
 2. **DNS 리바인딩 작은 창** (URL fetch 검증→실 fetch 사이) → 베타 acknowledged
 3. **배포 시 Site URL 좁히기** — 프로덕션 도메인만 화이트리스트
 4. **git committer 자동 추출** (`chacha@MacBook-Pro-4.local`) — 본인이 직접 `git config --global user.email <github_email>` 정정 필요
-5. **Y2K 미감 모음 시점** — M2 진입 전 anchor 5장 정도. Pinterest로 모으기 + Figma로 락
-6. **베타 첫 곡** — https://youtu.be/9RoZN7Dnoo4 (M5에서 사용)
+5. **Y2K 미감 모음 시점** — anchor 5장 도착 전이라 M2~M6 모두 placeholder 톤(neutral white/gray). Pinterest 모으기 + Figma 락 필요
+6. **베타 첫 곡** — https://youtu.be/9RoZN7Dnoo4 (M5 마운트, M6 본격 재생)
+7. **검증 미완 마일스톤 누적** (2026-05-04 세션) — M2~M6 한 호흡에 푸시했으나 브라우저 검증 X. §12 체크리스트 통과 후 M7 진입 권장
+8. **튕기기·뭉개기 검출 미구현** (M6 잔여) — 폴리싱 단계에서 추가
+9. **Scene 00 워밍업 자세 연습 미구현** (M4 잔여) — 진척표 미배정. 음악 인프라(M5) 들어왔으니 슬롯 잡기 가능
 
 ---
 
@@ -207,3 +210,46 @@ cd apps/web && npx tsc --noEmit
 - 코드 변경 후 **자동 커밋·푸시 안 함** — 사용자 승인 후
 - 의사결정거리는 **선택지 표 + 권장**으로 제시
 - 길게 늘어놓지 말고 *결정·이유·근거* 순으로
+
+---
+
+## 12. 다음 세션 검증 체크리스트 (2026-05-04 누적)
+
+M2~M6을 한 호흡에 푸시했으나 사용자 브라우저 검증 X. 다음 세션 첫 작업 = 다음을 통과시켜 안전하게 M7 진입.
+
+### 🟥 필수 (안 하면 어휘 등록이 죽음)
+- [ ] Supabase Dashboard → SQL Editor → `supabase/migrations/003_gestures_schema.sql` 붙여넣고 Run
+
+### 🟧 브라우저 검증 (`pnpm dev` → http://localhost:3000)
+**카메라 (M2/M3)**
+- [ ] 첫 진입 권한 프롬프트 → 허용 시 풀스크린 mirror 배경에 본인 모습
+- [ ] 권한 거부 시 하단 chip + "다시 요청" 버튼 동작
+- [ ] `NEXT_PUBLIC_HAND_DEBUG=1`이라 손 21점·연결선 + 검지 끝 큰 점 떠야 함
+
+**어휘 등록 (M4)** — gestures 4행 미만일 때 자동
+- [ ] 모달 진입, 자세 1~4 각각 "이 자세 잡기" → 1초 holding → 다음 단계
+- [ ] 손이 안 잡히면 빨간 안내, 다시 시도 가능
+- [ ] 4번째 후 자동 저장 → reload → 모달 사라지고 묶음 화면
+
+**묶음 (M2)**
+- [ ] 이미지 업로드 후 새로고침 없이 묶음 카드 갱신 (Realtime)
+- [ ] 자정 cross 또는 16번째 항목 인입 시 새 묶음 분기
+
+**Scene 02 hover (M5)**
+- [ ] 손 검지 끝을 폴더 위에 1초 → 흰 ring 진행 → 폴더 중앙 확대 (2x)
+
+**Scene 03 dismantle (M6)**
+- [ ] 양손 모았다가 빠르게 양옆으로 벌리기(0.5s 안) → 폴더 깨짐 + 음악 재생
+- [ ] 8초 무반응 → "폴더 열까요?" 안내 → 양손 검지+엄지 동그라미로 강제 진행
+- [ ] 음악 재생 시 50~80% 볼륨 (postMessage unmute + setVolume 80)
+
+### 🟨 미구현 (검증 대상 X — 메모용)
+- 튕기기·뭉개기 제스처 (M6 잔여)
+- Scene 00 워밍업 자세 연습 + 음악 (M4 잔여)
+- mouse/trackpad fallback (Scene 00 spec)
+
+### ⚠️ 잠재 이슈 (검증 시 살펴볼 것)
+- 검지 끝(landmark 8) 좌표가 mirror 표시와 정확히 정렬되는지 — 오프셋 있으면 hover 검출이 어긋남
+- 찢기 임계값(0.20→0.45)이 사용자 동작 폭과 맞는지 — 너무 빡빡하거나 너무 헐거우면 `dismantle-detect.ts` 상수 조정
+- YouTube postMessage가 origin 'https://www.youtube.com'에서만 통하는지 (Chrome dev console에서 `Refused` 메시지 확인)
+- 새 항목 인입 시 Realtime 채널 살아있는지 (Network → WS 탭에서 connection 확인)
