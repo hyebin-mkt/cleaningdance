@@ -22,3 +22,25 @@ export async function signInWithEmail(formData: FormData) {
 
   redirect("/login?sent=1");
 }
+
+export async function signInWithGoogle() {
+  const supabase = await createClient();
+
+  const headersList = await headers();
+  const origin = headersList.get("origin") ?? "http://localhost:3000";
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: { redirectTo: `${origin}/auth/callback` },
+  });
+
+  if (error) {
+    redirect(`/login?error=${encodeURIComponent(error.message)}`);
+  }
+
+  if (data?.url) {
+    redirect(data.url);
+  }
+
+  redirect("/login?error=oauth_failed");
+}
