@@ -4,7 +4,7 @@ import { signOut } from "./actions";
 import { UploadZone } from "./upload-zone";
 import { UrlInput } from "./url-input";
 import { CameraStage } from "./camera-stage";
-import { FolderStack } from "./folder-stack";
+import { Scene02Controller } from "./scene02-controller";
 import { RealtimeRefresh } from "./realtime-refresh";
 import { GestureRegistration } from "./gesture-registration";
 import { groupIntoBundles, type ItemRow } from "@/lib/bundles";
@@ -79,22 +79,10 @@ export default async function Home({
           )}
         </div>
 
-        {bundles.length === 0 ? (
-          <div className="flex items-center justify-center py-8">
-            <p className="text-xs text-white px-3 py-1.5 rounded bg-black/30 backdrop-blur-sm">
-              아직 묶을 게 없어요. 위에서 올려보세요.
-            </p>
-          </div>
-        ) : (
-          <div className="flex flex-wrap gap-3 content-start">
-            {bundles.map((b) => (
-              <FolderStack key={b.items[0].id} bundle={b} />
-            ))}
-          </div>
-        )}
+        <Scene02Controller bundles={bundles} />
 
         <p className="text-xs text-white/90 inline-block bg-black/25 backdrop-blur-sm rounded px-2 py-1">
-          M4 · 묶음 {bundles.length} · 어휘 {gestureCount}/4
+          M5 · 묶음 {bundles.length} · 어휘 {gestureCount}/4
         </p>
       </main>
 
