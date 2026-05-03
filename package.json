@@ -1,0 +1,11 @@
+{
+  "name": "cleaning-dance",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter web dev",
+    "build": "pnpm --filter web build",
+    "start": "pnpm --filter web start"
+  },
+  "packageManager": "pnpm@10.33.2"
+}
