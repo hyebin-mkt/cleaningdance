@@ -68,8 +68,8 @@ cat .env.local 2>/dev/null && echo "(env 있음)" || echo "(env 없음 — 세�
 | **M1.1** | 이미지 업로드 (50MB, WebP, EXIF strip) + 로그아웃 | -1 | ✅ |
 | **M1.2** | URL 인입 + OG 메타 + SSRF 방어 | -1 | ✅ |
 | **M1.3** | 검증 그리드 (signed URL 1h TTL) | — | ✅ |
-| **M2** | **3시간 단위 묶음 표시** | 01 | 🔜 다음 |
-| M3 | MediaPipe 손/제스처 디텍션 | — | |
+| **M2** | 3시간 묶음 + 카메라 풀스크린 무대 + 폴더 스택 + Realtime | 01 | ✅ |
+| **M3** | MediaPipe 손/제스처 디텍션 | — | 🔜 다음 |
 | M4 | 4 제스처 등록 워밍업 | 00 | |
 | M5 | 폴더 hover + YouTube 음악 | 02 | |
 | M6 | 폴더 해체 제스처 (3종) | 03 | |
@@ -182,18 +182,11 @@ cd apps/web && npx tsc --noEmit
 
 ---
 
-## 10. M2 시작 시 핵심 결정
+## 10. 현재 마일스톤 메모
 
-Scene 01 사양 (Notion 우선):
-- 묶음 기준 = **3시간 단위** (이전 일자별 → 변경됨)
-- 한 화면 최대 15개, 초과 시 새 묶음 카드로 분기
-- 최신 순 정렬
-- 인입 즉시 묶음 생성
+**M2 ✅** — Scene 01 자동 렌더. 카메라 풀스크린 배경(`fixed inset-0`), 폴더 스택 카드 오버레이, 3시간 calendar-aligned 묶음(자정 cross + 15개 cap), Supabase Realtime 자동 갱신, 권한 거부 시 하단 chip + 재요청 CTA.
 
-구현 측면 결정 필요:
-- 3시간 윈도우는 calendar-aligned (0–3, 3–6, ...) vs 첫 항목 기준 rolling? **calendar-aligned 권장** (예측 가능)
-- 묶음 카드 안에 표시될 항목 미리보기 개수 (3–5장?)
-- 미감 — Y2K anchor 도착 전이면 placeholder 톤(neutral white/gray)으로 시작
+**M3 🔜** — MediaPipe 손/제스처 디텍션. plan 진입 시 결정사항 여기에 정리.
 
 ---
 
